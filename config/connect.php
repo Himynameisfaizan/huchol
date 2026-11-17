@@ -17,10 +17,10 @@ if ($local) {
     $site = "http://localhost/projects/huchol/";
 } else {
     $host = 'localhost';
-    $username = 'u799879276_bhagirath_db';
-    $password = 'Bhagi@rath1';
-    $dbName = 'u799879276_bhagirath_db';
-    $site = 'https://bhagirathenterprises.co.in/';
+    $username = 'u799879276_huchol';
+    $password = 'Huchol@1';
+    $dbName = 'u799879276_huchol';
+    $site = 'https://oaken-mediumturquoise-ibis-09.hostingersite.com/';
 }
 
 // Make `$site` global
