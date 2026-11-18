@@ -14,7 +14,7 @@ if ($local) {
     $username = 'root';
     $password = '';
     $dbName = 'huchol';
-    $site = "http://localhost/projects/huchol/";
+    $site = "http://localhost/office_php_project/huchol/";
 } else {
     $host = 'localhost';
     $username = 'u799879276_huchol';
