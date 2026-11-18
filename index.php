@@ -23,7 +23,7 @@ $FC = [
 $cats = [];
 $seen = [];
 foreach (q("SELECT categories, slug_url, image FROM categories WHERE status=1 ORDER BY id ASC") as $i => $r) {
-    $cats[] = [$r['categories'], $r['slug_url'], 'Bulk supply, graded and packed to your specification.', img($r['image'], 'categories', un($FCI[$i % 4], 700))];
+    $cats[] = [$r['categories'], $r['slug_url'], 'Bulk supply, graded and packed to your specification.', img($r['image'], 'category', un($FCI[$i % 4], 700))];
     $seen[strtolower($r['categories'])] = 1;
 }
 foreach ($FC as $f) if (!isset($seen[strtolower($f[0])])) $cats[] = [$f[0], $f[1], $f[2], un($f[3], 700)];

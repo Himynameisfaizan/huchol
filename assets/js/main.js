@@ -23,3 +23,22 @@
     });
   });
 })();
+
+// Inner pages: product gallery thumbnails + copy-link button
+(function () {
+  var thumbs = document.querySelectorAll('[data-thumb]'), main = document.getElementById('gm');
+  thumbs.forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (!main) return;
+      main.style.display = ''; main.src = b.dataset.thumb;
+      thumbs.forEach(function (x) { x.classList.toggle('on', x === b); });
+    });
+  });
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var u = location.href.split('#')[0], done = function () { b.textContent = 'Link copied'; };
+      if (navigator.clipboard) navigator.clipboard.writeText(u).then(done, function () { prompt('Copy this link', u); });
+      else prompt('Copy this link', u);
+    });
+  });
+})();
