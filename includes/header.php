@@ -111,7 +111,7 @@ if (!isset($canonical_url)) {
                         <?php endforeach; ?>
                     </ul>
                 </li>
-                <li><a href="service.php">Services</a></li>
+                <!-- <li><a href="service.php">Services</a></li> -->
                 <li><a href="blog.php">Insights</a></li>
             </ul>
             <a href="contact.php" class="btn">Get bulk quote</a>
