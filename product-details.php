@@ -116,7 +116,7 @@ steps_block();
 faq_block('Questions about ' . $name, 'Ordering ' . $name, $faqs);
 if ($related): ?>
 <section class="sec alt"><div class="wrap">
-    <div class="bh"><div class="sh"><h2>You may also need</h2><span class="hi">One purchase order, many lines</span></div><a href="category.php" class="btn o d">All products</a></div>
+    <div class="bh"><div class="sh"><h2>You may also need</h2><span class="hi">One purchase order, many lines</span></div><a href="category" class="btn o d">All products</a></div>
     <div class="pg-grid"><?php foreach ($related as $r) echo product_card($r); ?></div>
 </div></section>
 <?php endif;

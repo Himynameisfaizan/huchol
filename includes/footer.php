@@ -15,17 +15,17 @@
         <div>
             <h4>Company</h4>
             <ul>
-                <li><a href="about.php">About us</a></li>
-                <li><a href="products.php">All products</a></li>
-                <li><a href="service.php">Services</a></li>
-                <li><a href="blog.php">Insights</a></li>
-                <li><a href="contact.php">Contact</a></li>
+                <li><a href="about">About us</a></li>
+                <li><a href="products">All products</a></li>
+                <li><a href="service">Services</a></li>
+                <li><a href="blog">Insights</a></li>
+                <li><a href="contact">Contact</a></li>
             </ul>
         </div>
         <div>
             <h4>Products</h4>
             <ul><?php foreach ($nav_cats as $slug => $cd): ?><li><a
-                        href="category.php?slug=<?= e($slug) ?>"><?= e($cd['name']) ?></a></li><?php endforeach; ?></ul>
+                        href="category/<?= e($slug) ?>"><?= e($cd['name']) ?></a></li><?php endforeach; ?></ul>
         </div>
         <div>
             <h4>Trade desk</h4>
@@ -39,7 +39,7 @@
         </div>
     </div>
     <div class="wrap fb">
-        <span>&copy; <?= date('Y') ?> <?= e($brand['name'] . ' ' . $brand['suffix']) ?>. All rights reserved.</span>
+        <span>&copy; <?= date('Y') ?> <?= e($brand['name'] . ' ' . $brand['suffix']) ?>. All rights reserved. Designed & Developed by <a href="https://www.digitalwebtrackers.com" target="_blank" rel="noopener" style="color: #F5A800;">Digital Web Trackers  </a></span>
         <?php if ($brand['licences']): ?><span
             class="lic"><?php foreach ($brand['licences'] as $l): ?><em><?= e($l) ?></em><?php endforeach; ?></span><?php endif; ?>
     </div>
