@@ -21,7 +21,7 @@ $cats  = q("SELECT categories, slug_url FROM categories WHERE status = 1 ORDER B
 $meta_title = $b['meta_title'] ?: $title . ' | ' . $brand['name'];
 $meta_desc  = $b['meta_desc'] ?: txt($b['description'], 155);
 $meta_key   = $b['meta_key'] ?: '';
-$canonical_url = base_url() . 'blog-details.php?slug=' . urlencode($b['slug']);
+$canonical_url = base_url() . 'blog/' . urlencode($b['slug']);
 $ts = strtotime($b['created_at']) ?: time();
 $schema = jld(['@context' => 'https://schema.org', '@graph' => [
     ['@type' => 'Article', 'headline' => $title, 'image' => [$cover], 'datePublished' => date('c', $ts), 'dateModified' => date('c', $ts), 'author' => ['@type' => 'Organization', 'name' => $b['author'] ?: $brand['name']], 'publisher' => ['@type' => 'Organization', 'name' => $brand['name']], 'description' => $meta_desc, 'mainEntityOfPage' => $canonical_url],
@@ -73,12 +73,12 @@ $shareU = urlencode($canonical_url); $shareT = urlencode($title);
             <?php if ($prods): ?>
             <div class="sbox"><h3>Popular products</h3>
                 <ul class="mini"><?php foreach ($prods as $pr): ?>
-                    <li><a href="product-details.php?slug=<?= e(urlencode($pr['slug_url'])) ?>"><span class="th"><?= pic(product_img($pr['pro_img'], $pr['cslug'], 160), $pr['pro_name']) ?></span><?= e($pr['pro_name']) ?></a></li>
+                    <li><a href="product/<?= e(urlencode($pr['slug_url'])) ?>"><span class="th"><?= pic(product_img($pr['pro_img'], $pr['cslug'], 160), $pr['pro_name']) ?></span><?= e($pr['pro_name']) ?></a></li>
                 <?php endforeach; ?></ul>
             </div>
             <?php endif; ?>
             <div class="sbox"><h3>Browse categories</h3>
-                <ul><?php foreach ($cats as $c): ?><li><a href="category.php?slug=<?= e($c['slug_url']) ?>"><?= e($c['categories']) ?></a></li><?php endforeach; ?></ul>
+                <ul><?php foreach ($cats as $c): ?><li><a href="category/<?= e($c['slug_url']) ?>"><?= e($c['categories']) ?></a></li><?php endforeach; ?></ul>
             </div>
         </aside>
     </div>

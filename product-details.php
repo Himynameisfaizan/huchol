@@ -13,7 +13,7 @@ if (!$p) {
     $notfound = ['Product not found', 'This product is not listed right now. Browse our range or send us your requirement and we will source it.'];
     include __DIR__ . '/includes/not-found.php'; exit;
 }
-if ($p['slug_url'] !== '' && $p['slug_url'] !== $slug) { header('Location: product-details.php?slug=' . urlencode($p['slug_url']), true, 301); exit; }
+if ($p['slug_url'] !== '' && $p['slug_url'] !== $slug) { header('Location: product/' . urlencode($p['slug_url']), true, 301); exit; }
 
 $name = txt($p['pro_name']);
 $cs   = $p['cat_slug'] ?? '';
@@ -38,9 +38,9 @@ $faqs       = product_faqs($name);
 $meta_title = $p['meta_title'] ?: $name . ' Wholesale Supplier | ' . $brand['name'];
 $meta_desc  = $p['meta_desc'] ?: txt($p['short_desc'], 155);
 $meta_key   = $p['meta_key'] ?: strtolower($name) . ' wholesale';
-$canonical_url = base_url() . 'product-details.php?slug=' . urlencode($p['slug_url'] ?: $slug);
+$canonical_url = base_url() . 'product/' . urlencode($p['slug_url'] ?: $slug);
 $crumbs = [['Home', './'], ['Products', 'category.php']];
-if ($p['cat_name']) $crumbs[] = [$p['cat_name'], 'category.php?slug=' . urlencode($cs)];
+if ($p['cat_name']) $crumbs[] = [$p['cat_name'], 'category/' . urlencode($cs)];
 $crumbs[] = [$name, null];
 $bc = []; foreach ($crumbs as $i => $c) $bc[] = ['@type' => 'ListItem', 'position' => $i + 1, 'name' => $c[0], 'item' => $c[1] ? base_url() . ($c[1] === './' ? '' : $c[1]) : $canonical_url];
 $schema = jld(['@context' => 'https://schema.org', '@graph' => [
@@ -61,8 +61,8 @@ $waMsg = rawurlencode($brand['wa_msg'] . ' Product: ' . $name);
         <?php endif; ?>
     </div>
     <div class="pdi">
-        <?php if ($p['cat_name']): ?><a class="tag" href="category.php?slug=<?= e(urlencode($cs)) ?>"><?= e($p['cat_name']) ?></a><?php endif; ?>
-        <?php if ($p['sub_name']): ?> <a class="tag" href="category.php?slug=<?= e(urlencode($cs)) ?>&sub=<?= e($p['sub_slug']) ?>"><?= e($p['sub_name']) ?></a><?php endif; ?>
+        <?php if ($p['cat_name']): ?><a class="tag" href="category/<?= e(urlencode($cs)) ?>"><?= e($p['cat_name']) ?></a><?php endif; ?>
+        <?php if ($p['sub_name']): ?> <a class="tag" href="category/<?= e(urlencode($cs)) ?>&sub=<?= e($p['sub_slug']) ?>"><?= e($p['sub_name']) ?></a><?php endif; ?>
         <h1><?= e($name) ?></h1>
         <p class="sd"><?= e(txt($p['short_desc']) ?: 'Graded and packed for wholesale. Rate and order size on request.') ?></p>
         <?php if ($facts): ?><dl class="kf"><?php foreach ($facts as $f): ?><div><dt><?= e($f[0]) ?></dt><dd><?= e($f[1]) ?></dd></div><?php endforeach; ?></dl><?php endif; ?>

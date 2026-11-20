@@ -93,7 +93,7 @@ include_once __DIR__ . '/includes/header.php';
     line-height: 1.65;
     margin-bottom: 18px;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }

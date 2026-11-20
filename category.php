@@ -56,7 +56,7 @@ if ($pgN > 1) $cp['page'] = $pgN;
 $canonical_url = base_url() . $self . ($cp ? '?' . http_build_query($cp) : '');
 
 $crumbs = [['Home', './'], ['Products', 'category.php']];
-if ($cat) $crumbs[] = [$cat['categories'], $sub ? 'category.php?slug=' . urlencode($slug) : null];
+if ($cat) $crumbs[] = [$cat['categories'], $sub ? 'category/' . urlencode($slug) : null];
 if ($sub) $crumbs[] = [$sub['categories'], null];
 $bc = [];
 foreach ($crumbs as $i => $c) $bc[] = ['@type' => 'ListItem', 'position' => $i + 1, 'name' => $c[0], 'item' => $c[1] ? base_url() . ($c[1] === './' ? '' : $c[1]) : $canonical_url];
@@ -104,11 +104,11 @@ $subject = $cat ? $cat['categories'] : 'Bulk enquiry';
                     <h3><?= $cat ? 'Browse ' . e($cat['categories']) : 'Categories' ?></h3>
                     <ul>
                         <?php if ($cat): ?>
-                            <li><a href="category.php?slug=<?= e($slug) ?>" class="<?= !$sub ? 'on' : '' ?>">All <?= e($cat['categories']) ?></a></li>
+                            <li><a href="category/<?= e($slug) ?>" class="<?= !$sub ? 'on' : '' ?>">All <?= e($cat['categories']) ?></a></li>
                             <!-- <?php foreach ($subs as $s): ?><li><a href="category.php?slug=<?= e($slug) ?>&sub=<?= e($s['slug_url']) ?>" class="<?= $sub && $sub['id'] == $s['id'] ? 'on' : '' ?>"><?= e($s['categories']) ?> <small><?= (int)$s['n'] ?></small></a></li><?php endforeach; ?> -->
                         <?php else: ?>
                             <li><a href="category.php" class="on">All products</a></li>
-                            <?php foreach ($allCats as $c): ?><li><a href="category.php?slug=<?= e($c['slug_url']) ?>"><?= e($c['categories']) ?> <small><?= (int)$c['n'] ?></small></a></li><?php endforeach; ?>
+                            <?php foreach ($allCats as $c): ?><li><a href="category/<?= e($c['slug_url']) ?>"><?= e($c['categories']) ?> <small><?= (int)$c['n'] ?></small></a></li><?php endforeach; ?>
                         <?php endif; ?>
                     </ul>
                 </div>

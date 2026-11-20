@@ -1,16 +1,18 @@
 <?php
-/** Global header: DB connect, helpers, Base URL, SEO engine, Schema & Navigation */
+/** Global header: DB connect, helpers, Base URL, SEO engine, Clean Canonical (www on live) & Schema */
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/functions.php';   // DB connection, brand config, helpers
 
-// ---- 1. Auto Base Path & Origin (Works on Localhost subfolder + Live root) ----
+// ---- 1. Auto Base Path & Origin (Localhost subfolder + Live https://www. auto-detect) ----
 $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || (($_SERVER['SERVER_PORT'] ?? '') == 443)
     || (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
 
-$scheme = $is_https ? 'https' : 'http';
-$host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$is_local = (stripos($host, 'localhost') !== false || strpos($host, '127.0.0.1') === 0);
+$scheme    = $is_https ? 'https' : 'http';
+$host_raw  = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$host_only = strtolower(preg_replace('/:\d+$/', '', $host_raw));
+$is_ip     = (bool)filter_var($host_only, FILTER_VALIDATE_IP);
+$is_local  = ($host_only === 'localhost' || $is_ip || substr($host_only, -6) === '.local');
 
 $doc_root = rtrim(str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: ''), '/');
 $app_root = rtrim(str_replace('\\', '/', realpath(dirname(__DIR__)) ?: ''), '/');
@@ -22,14 +24,14 @@ if ($doc_root !== '' && strpos($app_root, $doc_root) === 0) {
     $base_path = $dir === '' ? '/' : '/' . $dir . '/';
 }
 
-// Asset/HTML base URL (matches current host so localhost CSS/JS never break)
-$base_url = $scheme . '://' . $host . $base_path;
+// HTML <base> URL (matches current host so localhost CSS/JS/images load cleanly)
+$base_url = $scheme . '://' . $host_raw . $base_path;
 
-// SEO canonical origin (forces https://www. on live domain; keeps current host on localhost)
+// SEO Canonical Origin: Localhost par current host, LIVE website par hamesha https://www.
 if ($is_local) {
-    $seo_origin = $scheme . '://' . $host;
+    $seo_origin = $scheme . '://' . $host_raw;
 } else {
-    $seo_host   = stripos($host, 'www.') === 0 ? $host : 'www.' . $host;
+    $seo_host   = (strpos($host_only, 'www.') === 0) ? $host_only : 'www.' . $host_only;
     $seo_origin = 'https://' . $seo_host;
 }
 $seo_base = $seo_origin . $base_path;
@@ -62,7 +64,7 @@ foreach (q("SELECT cate_id, categories AS category_name, slug_url AS slug FROM c
 $current_page_name = basename($_SERVER['PHP_SELF'] ?? 'index.php');
 $is_404 = (http_response_code() === 404 || $current_page_name === '404.php');
 $slug_param = trim((string)($_GET['slug'] ?? $_GET['slug_url'] ?? ''));
-$cat_param  = trim((string)($_GET['category'] ?? ''));
+$cat_param  = trim((string)($_GET['category'] ?? $_GET['cat'] ?? ''));
 
 $site_full_name = trim(($brand['name'] ?? 'Huchol') . ' ' . ($brand['suffix'] ?? 'Agro Traders'));
 $default_title  = $site_full_name . ' | Wholesale Dry Fruits, Fresh Produce & Spices';
@@ -88,7 +90,6 @@ if ($is_404) {
     if (!empty($ok) && isset($conn)) {
         $esc_slug = $conn->real_escape_string($slug_param);
 
-        // A. Category page SEO
         if ($current_page_name === 'category.php' && $slug_param !== '') {
             $row = q("SELECT categories, meta_title, meta_desc, meta_key, schema_markup, image FROM categories WHERE slug_url='$esc_slug' AND status=1 LIMIT 1")[0] ?? [];
             if ($row) {
@@ -99,9 +100,7 @@ if ($is_404) {
                 if (!empty($row['image'])) $og_image = img($row['image'], 'category', '');
                 $auto_schema_data = ['type' => 'category', 'row' => $row];
             }
-        }
-        // B. Product details page SEO
-        elseif ($current_page_name === 'product-details.php' && $slug_param !== '') {
+        } elseif ($current_page_name === 'product/' && $slug_param !== '') {
             $row = q("SELECT pro_name, short_desc, pro_img, meta_title, meta_desc, meta_key, schema_markup FROM products WHERE slug_url='$esc_slug' AND is_disabled=0 LIMIT 1")[0] ?? [];
             if ($row) {
                 $meta_title = ($row['meta_title'] ?: ($row['pro_name'] . ' Bulk Supplier | ' . $site_full_name));
@@ -112,9 +111,7 @@ if ($is_404) {
                 if ($first_img !== '') $og_image = img($first_img, 'products', '');
                 $auto_schema_data = ['type' => 'product', 'row' => $row];
             }
-        }
-        // C. Blog details page SEO
-        elseif ($current_page_name === 'blog-details.php' && $slug_param !== '') {
+        } elseif ($current_page_name === 'blog-details.php' && $slug_param !== '') {
             $row = q("SELECT title, author, image, meta_title, meta_desc, meta_key, schema_markup, created_at FROM blogs WHERE slug='$esc_slug' AND status=1 LIMIT 1")[0] ?? [];
             if ($row) {
                 $og_type    = 'article';
@@ -125,9 +122,7 @@ if ($is_404) {
                 if (!empty($row['image'])) $og_image = img($row['image'], 'blogs', '');
                 $auto_schema_data = ['type' => 'blog', 'row' => $row];
             }
-        }
-        // D. Custom dynamic page SEO
-        elseif ($current_page_name === 'page.php' && $slug_param !== '') {
+        } elseif ($current_page_name === 'page.php' && $slug_param !== '') {
             $row = q("SELECT page_title, meta_title, meta_desc, meta_key, schema_markup FROM custom_pages WHERE slug_url='$esc_slug' AND status=1 LIMIT 1")[0] ?? [];
             if ($row) {
                 $meta_title = ($row['meta_title'] ?: ($row['page_title'] . ' | ' . $site_full_name));
@@ -135,9 +130,7 @@ if ($is_404) {
                 $meta_key   = ($row['meta_key']   ?: $default_key);
                 $schema     = $row['schema_markup'] ?? '';
             }
-        }
-        // E. Standard pages (meta + page_schemas tables)
-        else {
+        } else {
             $pg = $conn->real_escape_string($current_page_name);
             $md = q("SELECT meta_title, meta_desc, meta_key FROM meta WHERE page_url='$pg' LIMIT 1")[0] ?? [];
             $meta_title = ($md['meta_title'] ?? '') ?: $meta_title;
@@ -149,12 +142,22 @@ if ($is_404) {
 }
 $schema = trim((string)($schema ?? ''));
 
-// ---- 5. Clean Canonical URL Builder (No .php, No duplicate ?slug=) ----
-if (!$is_404 && !isset($canonical_url)) {
+// ---- 5. Forced Clean Canonical URL Builder (Matches .htaccess + enforces https://www. on live) ----
+if ($is_404) {
+    $canonical_url = '';
+} else {
+    // Fallback: agar kisi page ne pehle purana $canonical_url set kiya ho to usse slug/category nikaal lo
+    $old_canon = (string)($canonical_url ?? '');
+    if ($old_canon !== '') {
+        parse_str((string)parse_url($old_canon, PHP_URL_QUERY), $old_qs);
+        if ($slug_param === '') $slug_param = trim((string)($old_qs['slug'] ?? $old_qs['slug_url'] ?? ''));
+        if ($cat_param === '')  $cat_param  = trim((string)($old_qs['category'] ?? $old_qs['cat'] ?? ''));
+    }
+
     if ($current_page_name === 'index.php') {
         $canonical_url = $seo_base;
-    } elseif ($current_page_name === 'category.php' && $slug_param !== '') {
-        $canonical_url = $seo_base . 'category/' . rawurlencode($slug_param);
+    } elseif ($current_page_name === 'category.php' && ($slug_param !== '' || $cat_param !== '')) {
+        $canonical_url = $seo_base . 'category/' . rawurlencode($slug_param !== '' ? $slug_param : $cat_param);
     } elseif ($current_page_name === 'product-details.php' && $slug_param !== '') {
         $canonical_url = $seo_base . 'product/' . rawurlencode($slug_param);
     } elseif ($current_page_name === 'blog-details.php' && $slug_param !== '') {
@@ -164,18 +167,64 @@ if (!$is_404 && !isset($canonical_url)) {
     } elseif ($current_page_name === 'products.php' && $cat_param !== '') {
         $canonical_url = $seo_base . 'products/category/' . rawurlencode($cat_param);
     } else {
-        $clean_name = preg_replace('/\.php$/i', '', $current_page_name);
+        $clean_name    = preg_replace('/\.php$/i', '', $current_page_name);
         $canonical_url = $seo_base . rawurlencode($clean_name);
     }
 }
 
-// Convert relative OG image to absolute URL for social/schema previews
+// Convert relative OG image to absolute URL
 if ($og_image !== '' && !preg_match('#^https?://#i', $og_image)) {
     $og_image = $seo_base . ltrim($og_image, '/');
 }
 
-// ---- 6. Auto Fallback JSON-LD Schema if DB schema_markup is empty ----
-if (!$is_404 && $schema === '') {
+// ---- 6. Clean Legacy .php URLs + Force www inside Page-Generated JSON-LD Schema ----
+$clean_site_url = function (string $u) use ($host_only, $seo_origin, $seo_base, $base_path): string {
+    if (!preg_match('#^https?://#i', $u)) return $u;
+    $p = parse_url($u);
+    $bare_cur = preg_replace('/^www\./i', '', $host_only);
+    $bare_u   = preg_replace('/^www\./i', '', strtolower($p['host'] ?? ''));
+    if ($bare_u !== $bare_cur) return $u; // external URLs (schema.org, unsplash) untouched
+
+    $path = $p['path'] ?? '/';
+    parse_str($p['query'] ?? '', $qs);
+    $rel = (strpos($path, $base_path) === 0) ? substr($path, strlen($base_path)) : ltrim($path, '/');
+    $rel = ltrim($rel, '/');
+
+    if ($rel === '' || preg_match('#^index\.php$#i', $rel)) return $seo_base;
+    if (preg_match('#^category(?:\.php)?$#i', $rel) && !empty($qs['slug'])) return $seo_base . 'category/' . rawurlencode($qs['slug']);
+    if (preg_match('#^product-details(?:\.php)?$#i', $rel) && !empty($qs['slug'])) return $seo_base . 'product/' . rawurlencode($qs['slug']);
+    if (preg_match('#^blog-details(?:\.php)?$#i', $rel) && !empty($qs['slug'])) return $seo_base . 'blog/' . rawurlencode($qs['slug']);
+    if (preg_match('#^page(?:\.php)?$#i', $rel) && !empty($qs['slug'])) return $seo_base . 'page/' . rawurlencode($qs['slug']);
+    if (preg_match('#^products(?:\.php)?$#i', $rel) && !empty($qs['category'])) return $seo_base . 'products/category/' . rawurlencode($qs['category']);
+    if (preg_match('#^([a-zA-Z0-9_-]+)\.php$#i', $rel, $m)) return $seo_base . rawurlencode($m[1]);
+
+    $qstr = !empty($p['query']) ? '?' . $p['query'] : '';
+    return $seo_origin . $path . $qstr;
+};
+
+if (!$is_404 && $schema !== '') {
+    if (stripos($schema, '<script') === false) {
+        $schema = '<script type="application/ld+json">' . $schema . '</script>';
+    }
+    $schema = preg_replace_callback(
+        '#(<script\b[^>]*application/ld\+json[^>]*>)(.*?)(</script>)#is',
+        function ($m) use ($clean_site_url) {
+            $data = json_decode(trim($m[2]), true);
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) return $m[0];
+            $walk = function (&$node) use (&$walk, $clean_site_url) {
+                if (is_array($node)) {
+                    foreach ($node as &$v) $walk($v);
+                } elseif (is_string($node) && preg_match('#^https?://#i', $node)) {
+                    $node = $clean_site_url($node);
+                }
+            };
+            $walk($data);
+            return $m[1] . json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . $m[3];
+        },
+        $schema
+    );
+} elseif (!$is_404 && $schema === '') {
+    // Auto Fallback JSON-LD Schema if empty
     $json_flags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
     if ($auto_schema_data && $auto_schema_data['type'] === 'product') {
         $r = $auto_schema_data['row'];
@@ -232,9 +281,6 @@ if (!$is_404 && $schema === '') {
         }
         $schema = '<script type="application/ld+json">' . json_encode($sd, $json_flags) . '</script>';
     }
-} elseif ($schema !== '' && stripos($schema, '<script') === false) {
-    // Agar admin ne bina <script> tag ke raw JSON paste kiya ho to safely wrap karo
-    $schema = '<script type="application/ld+json">' . $schema . '</script>';
 }
 ?>
 <!DOCTYPE html>
@@ -242,7 +288,6 @@ if (!$is_404 && $schema === '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Base URL fixes CSS, JS, images & links on clean nested URLs (/category/..., /product/..., /blog/...) -->
     <base href="<?= e($base_url) ?>">
 
     <title><?= e($meta_title) ?></title>

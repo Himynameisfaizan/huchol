@@ -8,14 +8,14 @@ function crumbs($items, $cls = '') {
     return $o . '</ol>';
 }
 function product_card($p) {
-    $u = 'product-details.php?slug=' . urlencode($p['slug_url']);
+    $u = 'product/' . urlencode($p['slug_url']);
     $im = product_img($p['pro_img'] ?? '', $p['cslug'] ?? '');
     return '<article class="pc"><a class="ph" href="' . e($u) . '">' . pic($im, $p['pro_name']) . '</a><div class="bd"><small class="tag">' . e($p['cat'] ?? 'Products') . '</small>'
         . '<h3><a href="' . e($u) . '">' . e($p['pro_name']) . '</a></h3><p>' . e(txt($p['short_desc'] ?? '', 96) ?: 'Graded and packed for wholesale. Rate and MOQ on request.') . '</p>'
         . '<a class="pc-btn" href="' . e($u) . '#enquire">Request bulk rate</a></div></article>';
 }
 function blog_card($b) {
-    $u = 'blog-details.php?slug=' . urlencode($b['slug']);
+    $u = 'blog/' . urlencode($b['slug']);
     $im = img($b['image'] ?? '', 'blogs', un('photo-1596040033229-a9821ebd058d', 700));
     $ex = txt($b['meta_desc'] ?? '', 125) ?: txt($b['description'] ?? '', 125);
     return '<article class="bl"><a class="im" href="' . e($u) . '">' . pic($im, $b['title']) . '</a><small class="meta">' . e(date_fmt($b['created_at'] ?? '')) . ' by ' . e($b['author'] ?? '') . '</small>'

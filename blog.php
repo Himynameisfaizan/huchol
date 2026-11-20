@@ -40,7 +40,7 @@ include __DIR__ . '/includes/header.php';
         </div>
         <?php if ($qs !== ''): ?><p class="lh"><span><?= $total ?> article<?= $total === 1 ? '' : 's' ?> for “<?= e($qs) ?>”</span> <a class="rd" href="blog.php">Clear search</a></p><?php endif; ?>
 
-        <?php if ($featured): $fu = 'blog-details.php?slug=' . urlencode($featured['slug']); $fi = img($featured['image'], 'blogs', un('photo-1596040033229-a9821ebd058d', 900)); ?>
+        <?php if ($featured): $fu = 'blog/' . urlencode($featured['slug']); $fi = img($featured['image'], 'blogs', un('photo-1596040033229-a9821ebd058d', 900)); ?>
         <article class="feat">
             <a class="im" href="<?= e($fu) ?>"><?= pic($fi, $featured['title'], true) ?></a>
             <div class="bd">

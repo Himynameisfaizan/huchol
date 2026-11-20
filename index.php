@@ -82,7 +82,7 @@ $Bl = q("SELECT title, slug, author, image, meta_desc, description, created_at F
                 <p class="greet"><span class="hi">Wholesale</span> Supply from <?= e($brand['city']) ?></p>
                 <h1>Bought at the source. Packed to your spec. Supplied in bulk.</h1>
                 <p class="lead">Dry fruits, fresh fruits, vegetables and spices for wholesalers, hotels, retailers and exporters, sourced directly from farms and mandis around <?= e($brand['city']) ?>.</p>
-                <div class="cta"><a href="products.php" class="btn">Browse products</a><a href="#rfq" class="btn o">Get bulk rates</a></div>
+                <div class="cta"><a href="products" class="btn">Browse products</a><a href="#rfq" class="btn o">Get bulk rates</a></div>
                 <div class="need"><b>I am looking for</b>
                     <?php foreach ($cats as $c): ?><button type="button" data-p="<?= e($c[0]) ?>"><?= e($c[0]) ?></button><?php endforeach; ?>
                 </div>
@@ -127,7 +127,7 @@ $Bl = q("SELECT title, slug, author, image, meta_desc, description, created_at F
             </div>
             <div class="cat-grid">
                 <?php foreach ($cats as $i => $c): ?>
-                    <a class="cat" href="category.php?slug=<?= e($c[1]) ?>" style="--c:<?= $CC[$i % 6] ?>">
+                    <a class="cat" href="category/<?= e($c[1]) ?>" style="--c:<?= $CC[$i % 6] ?>">
                         <div class="ph"><?= pic($c[3], $c[0]) ?></div>
                         <div class="bd">
                             <h3><?= e($c[0]) ?></h3>
@@ -155,7 +155,7 @@ $Bl = q("SELECT title, slug, author, image, meta_desc, description, created_at F
                     <li><b>Packing that suits your trade</b>10, 25 and 50 kg packs, crates, or your own private label.</li>
                     <li><b>Clean paperwork</b>GST invoice, e-way bill and export documents handled by our desk.</li>
                 </ul>
-                <a href="about.php" class="btn d">About us</a>
+                <a href="about" class="btn d">About us</a>
             </div>
         </div>
     </section>
@@ -171,7 +171,7 @@ $Bl = q("SELECT title, slug, author, image, meta_desc, description, created_at F
                 <?php foreach ($chips as $cs => $cn): ?><button type="button" data-f="<?= e($cs) ?>" aria-pressed="false"><?= e($cn) ?></button><?php endforeach; ?>
             </div>
             <div class="pg-grid">
-                <?php foreach ($P as $p): $u = $p['slug'] ? 'product-details.php?slug=' . urlencode($p['slug']) : 'products.php'; ?>
+                <?php foreach ($P as $p): $u = $p['slug'] ? 'product/' . urlencode($p['slug']) : 'products.php'; ?>
                     <article class="pc" data-c="<?= e($p['cs']) ?>">
                         <a class="ph" href="<?= e($u) ?>"><?= pic($p['img'], $p['n']) ?></a>
                         <div class="bd">
@@ -254,13 +254,13 @@ $Bl = q("SELECT title, slug, author, image, meta_desc, description, created_at F
                 <div class="bh">
                     <div class="sh">
                         <h2>Buying guides and trade notes</h2><span class="hi">Know the market before you buy</span>
-                    </div><a href="blog.php" class="btn o d">All articles</a>
+                    </div><a href="blog" class="btn o d">All articles</a>
                 </div>
                 <div class="bg-grid">
                     <?php foreach ($Bl as $b):
                         $bi = img($b['image'], 'blogs', un('photo-1596040033229-a9821ebd058d', 700));
                         $ex = txt($b['meta_desc'], 125) ?: txt($b['description'], 125);
-                        $u = 'blog-details.php?slug=' . urlencode($b['slug']); ?>
+                        $u = 'blog/' . urlencode($b['slug']); ?>
                         <article class="bl">
                             <a class="im" href="<?= e($u) ?>"><?= pic($bi, $b['title']) ?></a>
                             <small class="meta"><?= e(date('d M Y', strtotime($b['created_at'] ?: 'now'))) ?> by <?= e($b['author']) ?></small>
