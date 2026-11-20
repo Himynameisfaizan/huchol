@@ -1,166 +1,275 @@
 <?php
-include('config/connect.php');
+require_once __DIR__ . '/includes/functions.php';
 
-$slug = isset($_GET['slug']) ? mysqli_real_escape_string($conn, $_GET['slug']) : '';
+$slug = trim((string)($_GET['slug'] ?? ''));
+$pageData = null;
 
-$pageQuery = mysqli_query($conn, "SELECT * FROM custom_pages WHERE slug_url = '$slug' AND status = 1");
-$pageData = mysqli_fetch_assoc($pageQuery);
+if ($slug !== '' && !empty($ok) && isset($conn)) {
+    $esc_slug = $conn->real_escape_string($slug);
+    $pageData = q("SELECT * FROM custom_pages WHERE slug_url = '$esc_slug' AND status = 1 LIMIT 1")[0] ?? null;
+}
 
+// Proper HTTP 404 if slug is missing or inactive (no soft-404 JS redirect)
 if (!$pageData) {
-    echo "<script>window.location.href='index.php';</script>";
+    http_response_code(404);
+    require __DIR__ . '/404.php';
     exit;
 }
 
-$slug = isset($_GET['slug']) ? mysqli_real_escape_string($conn, $_GET['slug']) : '';
+$brand_full = trim(($brand['name'] ?? 'Huchol') . ' ' . ($brand['suffix'] ?? 'Agro Traders'));
 
-// Database se specific blog fetch karein
-$blogQuery = mysqli_query($conn, "SELECT * FROM blogs WHERE slug = '$slug' AND status = 1");
-$blog = mysqli_fetch_assoc($blogQuery);
+// Clean display title & breadcrumb title
+$raw_crumb   = trim((string)($pageData['breadcrumb_title'] ?? ''));
+$raw_title   = trim((string)($pageData['page_title'] ?? ''));
+$crumb_title = $raw_crumb !== '' ? ucwords($raw_crumb) : ($raw_title !== '' ? ucwords($raw_title) : 'Trade Guide');
 
-
-$cate_id = $category['cate_id'] ?? '';
-$cat_primary_id = $category['id'] ?? ''; 
-$categoryName = $category['categories'] ?? '';
-
-
-$pageTitle = !empty($pageData['meta_title']) ? $pageData['meta_title'] : $pageData['page_title'];
-$meta_description = !empty($pageData['meta_desc']) ? $pageData['meta_desc'] : strip_tags(substr($pageData['content'], 0, 160));
-$meta_keywords = $pageData['meta_key'] ?? '';
-
-// Breadcrumb ke liye variable (Breadcrumb include isko use karega)
-$breadcrumb_name = $pageData['breadcrumb_title']; 
-
-// Smart Schema Logic
-$raw_schema = trim($pageData['schema_markup'] ?? '');
-if (!empty($raw_schema)) {
-    if (stripos($raw_schema, '<script') === false) {
-        $page_schema = "<script type=\"application/ld+json\">\n" . $raw_schema . "\n</script>";
+// If content starts with an <h1>, use it as the clean page headline when page_title is short/generic
+$content_html = (string)($pageData['content'] ?? '');
+$hero_title   = $raw_title !== '' ? ucwords($raw_title) : $crumb_title;
+if (preg_match('/<h1\b[^>]*>(.*?)<\/h1>/is', $content_html, $h1m)) {
+    $h1_plain = trim(strip_tags($h1m[1]));
+    if ($h1_plain !== '' && mb_strlen($raw_title) < 25) {
+        $hero_title = $h1_plain;
+        // Remove duplicate first H1 from body so the page has strictly one H1 (SEO best practice)
+        $content_html = preg_replace('/<h1\b[^>]*>.*?<\/h1>/is', '', $content_html, 1);
     } else {
-        $page_schema = $raw_schema;
+        // Demote any remaining H1 inside content to H2
+        $content_html = preg_replace('/<(\/?)h1\b/i', '<$1h2', $content_html);
     }
-} else {
-    $page_schema = "";
 }
 
-// Phone Number fetch for Call-to-action
-$contactQuery = mysqli_query($conn, "SELECT phone FROM contacts LIMIT 1");
-$contactInfo = mysqli_fetch_assoc($contactQuery);
-$sitePhone = !empty($contactInfo['phone']) ? $contactInfo['phone'] : '+91-8448211202';
+// Wrap bare tables in .tw so wide tables scroll cleanly inside the card on mobile
+$content_html = preg_replace_callback('/<table\b[^>]*>.*?<\/table>/is', function ($m) {
+    return '<div class="tw">' . $m[0] . '</div>';
+}, $content_html);
 
-include 'includes/header.php';
-// Custom Breadcrumb Header
-$pageTitle = $pageData['page_title'] ?? 'Dynamic Page';
-include 'includes/breadcrumb.php';
+// ---- SEO Meta & Safe Schema Validation ----
+$raw_mt = trim((string)($pageData['meta_title'] ?? ''));
+$raw_md = trim(strip_tags((string)($pageData['meta_desc'] ?? '')));
+$raw_mk = trim((string)($pageData['meta_key'] ?? ''));
+
+$meta_title = ($raw_mt !== '' && strcasecmp($raw_mt, $slug) !== 0)
+    ? $raw_mt
+    : ($hero_title . ' | ' . $brand_full);
+
+$meta_desc = (mb_strlen($raw_md) >= 25 && strcasecmp($raw_md, $slug) !== 0)
+    ? $raw_md
+    : (txt($pageData['content'] ?? '', 158) ?: ('Wholesale information and bulk supply details from ' . $brand_full . '.'));
+
+$meta_key = ($raw_mk !== '' && strcasecmp($raw_mk, $slug) !== 0)
+    ? $raw_mk
+    : ($crumb_title . ', wholesale agro supplier, ' . $brand_full);
+
+// Only accept schema_markup if it is valid <script> block or valid JSON; otherwise let header.php build fallback
+$schema = '';
+$raw_schema = trim((string)($pageData['schema_markup'] ?? ''));
+if ($raw_schema !== '') {
+    if (stripos($raw_schema, '<script') !== false) {
+        $schema = $raw_schema;
+    } else {
+        json_decode($raw_schema);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $schema = '<script type="application/ld+json">' . $raw_schema . '</script>';
+        }
+    }
+}
+
+include_once __DIR__ . '/includes/header.php';
+
+// ---- Sidebar Data: Other Custom Pages + Recent Blogs ----
+$current_id  = (int)($pageData['id'] ?? 0);
+$other_pages = q("SELECT page_title, breadcrumb_title, slug_url FROM custom_pages WHERE status = 1 AND id != $current_id AND slug_url <> '' ORDER BY id DESC LIMIT 6");
+$recent_blogs = q("SELECT title, slug, image, created_at FROM blogs WHERE status = 1 ORDER BY created_at DESC, blog_id DESC LIMIT 3");
+
+$share_url   = !empty($canonical_url) ? $canonical_url : ($base_url . 'page/' . rawurlencode($slug));
+$c_address   = $ct['address'] ?? '';
+$pub_date    = !empty($pageData['created_at']) ? date('d M Y', strtotime($pageData['created_at'])) : '';
 ?>
 
-<!-- Main Page Content -->
-<section class="custom-page-section py-5 bg-light">
-    <div class="container">
-        <div class="row g-5">
-            
-            <!-- LEFT COLUMN: Content Area -->
-            <div class="col-lg-8">
-                <div class="bg-white p-4 p-md-5 rounded shadow-sm border">
-                    <h2 class="fw-bold mb-4" style="color:#222; font-size:2rem;"><?= htmlspecialchars($pageData['page_title']); ?></h2>
-                    
-                    <div class="page-content-body" style="line-height: 1.8; color: #444; font-size: 1.05rem;">
-                        <?= $pageData['content']; ?>
+<main id="main">
+
+    <!-- Page Header -->
+    <section class="pghead nb">
+        <div class="wrap">
+            <ol class="crumbs">
+                <li><a href="./">Home</a></li>
+                <li><a href="location">Locations &amp; Pages</a></li>
+                <li><?= e($crumb_title) ?></li>
+            </ol>
+            <h1><?= e($hero_title) ?></h1>
+            <div class="pills">
+                <?php if ($pub_date): ?>
+                    <span>Updated <?= e($pub_date) ?></span>
+                <?php endif; ?>
+                <span><?= e($brand_full) ?></span>
+                <span>Wholesale &amp; Bulk Supply</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main 2-Column Layout (.art from style.css) -->
+    <section class="sec art-sec">
+        <div class="wrap art">
+
+            <!-- Left Column: Dynamic Content Card -->
+            <div>
+                <article style="background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(22px,4vw,42px);">
+                    <div class="prose">
+                        <?= $content_html ?>
                     </div>
 
-                    <!-- Social Share Links -->
-                    <div class="social-share mt-5 pt-4 border-top d-flex align-items-center">
-                        <span class="fw-bold me-3 text-dark">Share this:</span>
-                        <?php $current_url = "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode($current_url) ?>" target="_blank" class="btn btn-sm btn-outline-primary me-2 rounded-circle" style="width:35px;height:35px;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="https://twitter.com/intent/tweet?url=<?= urlencode($current_url) ?>" target="_blank" class="btn btn-sm btn-outline-info me-2 rounded-circle" style="width:35px;height:35px;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-twitter"></i></a>
-                        <a href="https://wa.me/?text=<?= urlencode($current_url) ?>" target="_blank" class="btn btn-sm btn-outline-success me-2 rounded-circle" style="width:35px;height:35px;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-whatsapp"></i></a>
-                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=<?= urlencode($current_url) ?>" target="_blank" class="btn btn-sm btn-outline-secondary rounded-circle" style="width:35px;height:35px;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <!-- Trade Desk Contact Box (Dynamic from contacts table) -->
+                    <div style="background:var(--alt);border-left:4px solid var(--gold);border-radius:var(--r);padding:18px 20px;margin-top:28px;">
+                        <p style="margin-bottom:6px;"><strong>Enquire with <?= e($brand_full) ?></strong></p>
+                        <?php if ($c_address): ?>
+                            <p style="margin-bottom:6px;font-size:.94rem;color:var(--mut);"><strong>Address:</strong> <?= e($c_address) ?></p>
+                        <?php endif; ?>
+                        <p style="margin-bottom:6px;font-size:.94rem;"><strong>Phone / WhatsApp:</strong> <a href="tel:+<?= e($tel) ?>" style="color:var(--chilli);text-decoration:underline;"><?= e($disp_phone) ?></a></p>
+                        <p style="margin-bottom:0;font-size:.94rem;"><strong>Email:</strong> <a href="mailto:<?= e($mail) ?>" style="color:var(--chilli);text-decoration:underline;"><?= e($mail) ?></a></p>
                     </div>
-                </div>
+
+                    <!-- Social Share Bar (Styled natively by .share in style.css) -->
+                    <div class="share">
+                        <b>Share this page:</b>
+                        <a href="https://wa.me/?text=<?= rawurlencode($hero_title . ' - ' . $share_url) ?>" target="_blank" rel="noopener" aria-label="Share on WhatsApp">
+                            <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?= rawurlencode($share_url) ?>" target="_blank" rel="noopener" aria-label="Share on Facebook">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url=<?= rawurlencode($share_url) ?>&amp;text=<?= rawurlencode($hero_title) ?>" target="_blank" rel="noopener" aria-label="Share on X">
+                            <i class="fa-brands fa-x-twitter"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= rawurlencode($share_url) ?>" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+                            <i class="fa-brands fa-linkedin-in"></i>
+                        </a>
+                        <button type="button" id="copyPageUrl" data-url="<?= e($share_url) ?>">
+                            <i class="fa-regular fa-copy"></i> Copy link
+                        </button>
+                    </div>
+                </article>
             </div>
 
-            <!-- RIGHT COLUMN: Sidebar (Similar to Blog/Category Details) -->
-            <div class="col-lg-4">
-                <div class="sidebar-widgets position-sticky" style="top: 20px;">
-                    
-                    <!-- Search Widget -->
-                    <div class="widget-box bg-white p-4 rounded shadow-sm border mb-4">
-                        <h5 class="fw-bold mb-3 border-bottom pb-2">Search</h5>
-                        <form action="blog.php" method="GET" class="d-flex">
-                            <input type="text" name="search" class="form-control me-2" placeholder="Search..." required style="font-size: 0.9rem;">
-                            <button type="submit" class="btn text-white px-3" style="background: var(--primary-green, #2b5e2c);"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        </form>
-                    </div>
+            <!-- Right Column: Sticky Sidebar (.asd from style.css) -->
+            <aside class="asd">
 
-                    <!-- Dynamic Categories (Blogs se link) -->
-                     <div class="widget-box bg-white p-4 rounded shadow-sm border mb-4">
-                        <h5 class="fw-bold mb-3 border-bottom pb-2" style="font-size: 1.1rem; color: #222;">Categories</h5>
-                        <ul class="list-unstyled mb-0 category-list">
-                            <?php
-                            $sideCatQuery = mysqli_query($conn, "SELECT * FROM categories WHERE status = 1 ORDER BY id DESC");
-                            while($sideCat = mysqli_fetch_assoc($sideCatQuery)):
-                                $isActive = ($sideCat['cate_id'] == $cate_id || $sideCat['slug_url'] == $slug) ? 'fw-bold active-cat' : 'text-muted';
-                            ?>
-                            <li class="mb-2 pb-2 border-bottom" style="border-color: #f8f9fa !important;">
-                                <a href="category.php?slug=<?= htmlspecialchars($sideCat['slug_url']) ?>" class="text-decoration-none d-flex justify-content-between align-items-center category-link <?= $isActive ?>" style="font-size: 0.95rem;">
-                                    <span><i class="fa-solid fa-angle-right me-2" style="font-size: 0.75rem;"></i> <?= htmlspecialchars($sideCat['categories']) ?></span>
+                <!-- Search Products -->
+                <div class="sbox">
+                    <h3>Search Catalogue</h3>
+                    <form action="products" method="GET" class="sbar" role="search">
+                        <input type="search" name="q" placeholder="Search almonds, chilli, onions..." aria-label="Search products" required>
+                        <button type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </form>
+                </div>
+
+                <!-- Dynamic Wholesale Categories -->
+                <?php if (!empty($nav_cats)): ?>
+                <div class="sbox">
+                    <h3>Wholesale Aisles</h3>
+                    <ul>
+                        <?php foreach ($nav_cats as $cslug => $cd): ?>
+                            <li>
+                                <a href="category/<?= e($cslug) ?>" class="<?= $cslug === $slug ? 'on' : '' ?>">
+                                    <?= e($cd['name']) ?> <small>&rarr;</small>
                                 </a>
                             </li>
-                            <?php endwhile; ?>
-                        </ul>
-                    </div>
-
-                    <!-- Recent Posts Widget -->
-                     <div class="sidebar-widget">
-                        <h4 class="sidebar-title">Recent Posts</h4>
-
-                        <?php
-                        // Fetch 3 Recent Blogs excluding the current one
-                        $recentQuery = mysqli_query($conn, "SELECT * FROM blogs WHERE status = 1 AND blog_id != '{$blog['blog_id']}' ORDER BY created_at DESC LIMIT 3");
-
-                        if (mysqli_num_rows($recentQuery) > 0) {
-                            while ($recentBlog = mysqli_fetch_assoc($recentQuery)):
-                                $r_date = date('M d, Y', strtotime($recentBlog['created_at']));
-                                $r_img = !empty($recentBlog['image']) ? 'admin/assets/img/uploads/blogs/' . $recentBlog['image'] : 'https://images.unsplash.com/photo-1615486171448-4228965f7c32?q=80&w=200';
-                        ?>
-                                <div class="recent-post-item">
-                                    <img src="<?php echo $r_img; ?>" alt="<?php echo htmlspecialchars($recentBlog['title']); ?>">
-                                    <div class="recent-post-info">
-                                        <h4><a href="blog-details.php?slug=<?php echo $recentBlog['slug']; ?>"><?php echo htmlspecialchars($recentBlog['title']); ?></a></h4>
-                                        <span><?php echo $r_date; ?></span>
-                                    </div>
-                                </div>
-                        <?php
-                            endwhile;
-                        } else {
-                            echo "<p style='color: #666; font-size: 13px;'>No recent posts available.</p>";
-                        }
-                        ?>
-                    </div>
-
-                    <!-- Request Quote Banner -->
-                    <div class="widget-box rounded shadow-sm text-center p-4 text-white" style="background: linear-gradient(135deg, var(--primary-green, #2b5e2c) 0%, #1a3f1b 100%);">
-                        <div class="icon-wrap mb-3"><i class="fa-solid fa-headset fs-1 text-white opacity-75"></i></div>
-                        <h4 class="fw-bold mb-2 text-white">Need Consultation?</h4>
-                        <p class="small mb-4 opacity-75">Reach out to our experts today for customized solutions and pricing.</p>
-                        <a href="contact.php" class="btn bg-white w-100 fw-bold shadow-sm mb-3" style="color: var(--primary-green, #2b5e2c);">Request Quote</a>
-                        <a href="tel:<?= htmlspecialchars($sitePhone) ?>" class="text-white text-decoration-none small fw-bold"><i class="fa-solid fa-phone me-1"></i> <?= htmlspecialchars($sitePhone) ?></a>
-                    </div>
-
+                        <?php endforeach; ?>
+                    </ul>
                 </div>
-            </div>
+                <?php endif; ?>
+
+                <!-- Other Location / Custom Pages -->
+                <?php if (!empty($other_pages)): ?>
+                <div class="sbox">
+                    <h3>More Trade Pages</h3>
+                    <ul>
+                        <?php foreach ($other_pages as $op):
+                            $op_name = trim((string)($op['breadcrumb_title'] ?: $op['page_title']));
+                        ?>
+                            <li>
+                                <a href="page/<?= e(rawurlencode($op['slug_url'])) ?>">
+                                    <?= e(ucwords($op_name)) ?> <small>&rarr;</small>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                        <li><a href="location" style="color:var(--tan);font-weight:700;">View all pages <small>&rarr;</small></a></li>
+                    </ul>
+                </div>
+                <?php endif; ?>
+
+                <!-- Recent Buying Guides (Uses img() helper safely for both local uploads & URLs) -->
+                <?php if (!empty($recent_blogs)): ?>
+                <div class="sbox">
+                    <h3>Recent Buying Guides</h3>
+                    <ul class="mini">
+                        <?php foreach ($recent_blogs as $rb):
+                            $rb_img = img($rb['image'] ?? '', 'blogs', un('photo-1596040033229-a9821ebd058d', 300));
+                            $rb_url = 'blog/' . rawurlencode($rb['slug']);
+                        ?>
+                            <li>
+                                <a href="<?= e($rb_url) ?>">
+                                    <span class="th"><?= pic($rb_img, $rb['title']) ?></span>
+                                    <span>
+                                        <?= e(mb_strimwidth($rb['title'], 0, 56, '...')) ?>
+                                        <small style="display:block;color:var(--mut);font-weight:400;"><?= e(date('d M Y', strtotime($rb['created_at'] ?: 'now'))) ?></small>
+                                    </span>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
+
+                <!-- Dark Trade Desk CTA Box -->
+                <div class="sbox dkc">
+                    <h3>Need today’s bulk rate?</h3>
+                    <p>Send your product, grade, pack size and destination city. Our desk replies with a written quotation.</p>
+                    <a href="contact" class="btn" style="width:100%;margin-bottom:10px;">Request bulk quote</a>
+                    <a href="https://wa.me/<?= e($wa) ?>?text=<?= rawurlencode('Hello ' . $brand_full . ', I am enquiring from: ' . $hero_title) ?>" target="_blank" rel="noopener" class="btn green" style="width:100%;margin-bottom:12px;">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp desk
+                    </a>
+                    <p style="margin:0;font-size:.9rem;">
+                        <a href="tel:+<?= e($tel) ?>"><i class="fa-solid fa-phone" style="color:var(--gold);margin-right:6px;"></i><?= e($disp_phone) ?></a>
+                    </p>
+                </div>
+
+            </aside>
 
         </div>
-    </div>
-</section>
+    </section>
 
-<style>
-    .page-content-body img { max-width: 100%; height: auto; border-radius: 8px; margin: 15px 0; }
-    .page-content-body h1, .page-content-body h2, .page-content-body h3 { color: #222; margin-top: 25px; margin-bottom: 15px; font-weight: 700; }
-    .category-list li:last-child { border-bottom: none !important; margin-bottom: 0 !important; padding-bottom: 0 !important; }
-    .category-list a:hover { color: var(--primary-green, #2b5e2c) !important; padding-left: 5px; transition: 0.2s; }
-</style>
+    <!-- Bottom CTA Band -->
+    <section class="sec cbs">
+        <div class="wrap">
+            <div class="cband">
+                <div>
+                    <h2>Request a sample and today’s wholesale rate</h2>
+                    <p>Tell us your required grade, quantity and delivery city. Our trade desk handles packing, GST billing and dispatch.</p>
+                </div>
+                <div class="cta">
+                    <a href="contact" class="btn d">Get bulk quote</a>
+                    <a href="https://wa.me/<?= e($wa) ?>" target="_blank" rel="noopener" class="btn green"><i class="fa-brands fa-whatsapp"></i> WhatsApp us</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<!-- Footer Section with Inquiry Form (Already in Footer/Inquiry include) -->
-<?php include ('includes/inquiry-form.php'); ?>
-<?php include 'includes/footer.php'; ?>
+</main>
+
+<script>
+(function () {
+    var btn = document.getElementById('copyPageUrl');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+        var url = btn.getAttribute('data-url') || window.location.href;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+                setTimeout(function () { btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy link'; }, 2000);
+            });
+        }
+    });
+})();
+</script>
+
+<?php include __DIR__ . '/includes/footer.php'; ?>
