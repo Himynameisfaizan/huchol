@@ -1,128 +1,149 @@
 <?php
-include('config/connect.php');
+$meta_title = 'Privacy Policy | Huchol Agro Traders';
+$meta_desc  = 'Read how Huchol Agro Traders collects, uses and protects business and buyer information for bulk dry fruits, fresh produce and spices enquiries.';
+$meta_key   = 'privacy policy, huchol agro traders, bulk agro supplier privacy, wholesale trade data protection';
 
-// SEO Meta Variables
-$pageTitle = "Privacy Policy | Bhagirath Enterprises";
-$meta_description = "Read the Privacy Policy of Bhagirath Enterprises regarding personal data protection for our premium spices, dry fruits, seeds, and kernels.";
-$meta_key = "privacy policy, bhagirath enterprises, spices export, dry fruits, seeds and kernels";
+include_once 'includes/header.php';
 
-include 'includes/header.php';
-include 'includes/breadcrumb.php';
+$brand_full = $site_full_name ?? trim(($brand['name'] ?? 'Huchol') . ' ' . ($brand['suffix'] ?? 'Agro Traders'));
+$c_address  = $ct['address'] ?? '';
 ?>
 
-<!-- Main Policy Section (Blog Details Style: Left Content + Right Sidebar) -->
-<section class="py-5" style="background-color: #f8f9fa;">
-    <div class="container">
-        <div class="row g-5">
-            
-            <!-- LEFT COLUMN: Policy Content -->
-            <div class="col-lg-8">
-                <div class="bg-white p-4 p-md-5 rounded shadow-sm border">
-                    <h1 class="mb-3" style="color: #2b5e2c; font-weight: 700;">Privacy Policy</h1>
-                    <p class="text-muted mb-5"><strong>Last Updated:</strong> <?= date('F d, Y'); ?></p>
+<main id="main">
 
-                    <p>Welcome to <strong>Bhagirath Enterprises</strong>. We respect your privacy and are committed to protecting your personal data. This Privacy Policy outlines how we collect, use, process, and safeguard your information when you visit our website, purchase our premium agricultural commodities—including <strong>spices, dry fruits, seeds, and kernels</strong>—or use our services.</p>
-
-                    <h4 class="mt-5" style="color: #e65c00; font-size: 1.2rem;">1. Information We Collect</h4>
-                    <p>To provide you with a seamless and secure shopping and wholesale inquiry experience, we collect the following types of information:</p>
-                    <ul>
-                        <li><strong>Personal Identification Information:</strong> Name, email address, phone number, and business/company details (if applicable).</li>
-                        <li><strong>Shipping & Billing Information:</strong> Delivery address, billing address, postal code, and destination country for domestic or international freight.</li>
-                        <li><strong>Technical Data:</strong> IP address, browser type, time zone setting, operating system, and platform details when browsing our catalog.</li>
-                        <li><strong>Trade & Bulk Order Compliance Data:</strong> For bulk and wholesale orders of spices, dry fruits, or seeds, we may collect business credentials, GST/VAT numbers, or import-export licenses as required by trade regulations.</li>
-                    </ul>
-
-                    <h4 class="mt-5" style="color: #e65c00; font-size: 1.2rem;">2. How We Use Your Information</h4>
-                    <p>We use the information we collect for the following purposes:</p>
-                    <ul>
-                        <li>To process, pack, and fulfill your orders for spices, dry fruits, seeds, and kernels, ensuring quality dispatch.</li>
-                        <li>To communicate with you regarding order confirmations, shipping updates, tracking, and customer support.</li>
-                        <li>To process online payments securely and prevent fraudulent activities.</li>
-                        <li>To comply with food safety, agricultural export standards, and legal trade obligations.</li>
-                        <li>To improve our website functionality, product display, and user experience.</li>
-                    </ul>
-
-                    <h4 class="mt-5" style="color: #e65c00; font-size: 1.2rem;">3. Secure Payment Processing</h4>
-                    <p>We do not store your credit card, debit card, UPI, or net banking details on our servers. All financial transactions are handled through secure, PCI-DSS compliant third-party payment gateways (such as Razorpay). Your payment data is fully encrypted and protected under strict industry standards.</p>
-
-                    <h4 class="mt-5" style="color: #e65c00; font-size: 1.2rem;">4. Third-Party Data Sharing</h4>
-                    <p>We do not sell or trade your personal information. However, trusted third parties assist us in conducting our business operations, including:</p>
-                    <ul>
-                        <li><strong>Logistics & Shipping Partners:</strong> Courier companies, transport services, and freight forwarders required to deliver your shipments safely.</li>
-                        <li><strong>Payment Gateways:</strong> Authorized financial processors for transaction management.</li>
-                        <li><strong>Regulatory Authorities:</strong> Government or customs bodies when legally required for export compliance.</li>
-                    </ul>
-
-                    <h4 class="mt-5" style="color: #e65c00; font-size: 1.2rem;">5. Cookies and Tracking Technologies</h4>
-                    <p>Our website uses cookies to enhance browsing efficiency, maintain session preferences, and analyze site traffic. You can choose to disable cookies through your browser, though certain features of the website may not function properly as a result.</p>
-
-                    <h4 class="mt-5" style="color: #e65c00; font-size: 1.2rem;">6. Data Security</h4>
-                    <p>We implement robust administrative, technical, and physical security measures, including SSL encryption and secure firewalls, to protect your personal data against unauthorized access, disclosure, or misuse.</p>
-
-                    <h4 class="mt-5" style="color: #e65c00; font-size: 1.2rem;">7. Contact Us</h4>
-                    <p>If you have any questions or concerns regarding this Privacy Policy, please feel free to contact us:</p>
-                    <div class="p-3 mt-3 rounded" style="background-color: #f1f5f9; border-left: 4px solid var(--primary-green, #2b5e2c);">
-                        <p class="mb-1"><strong>Bhagirath Enterprises</strong></p>
-                        <p class="mb-1"><strong>Specialization:</strong> Exporters & Suppliers of Spices, Dry Fruits, Seeds & Kernels</p>
-                        <p class="mb-1"><strong>Phone:</strong> +91-8448211202</p>
-                        <p class="mb-0"><strong>Email:</strong> support@bhagirathenterprises.com</p>
-                    </div>
-                </div>
+    <section class="pghead nb">
+        <div class="wrap">
+            <ol class="crumbs">
+                <li><a href="./">Home</a></li>
+                <li>Privacy Policy</li>
+            </ol>
+            <h1>Privacy Policy</h1>
+            <p class="lead">How <?= e($brand_full) ?> handles buyer enquiries, trade documentation and contact details shared with our desk.</p>
+            <div class="pills">
+                <span>Last updated: <?= e(date('d M Y')) ?></span>
+                <span>B2B Trade Desk</span>
             </div>
+        </div>
+    </section>
 
-            <!-- RIGHT COLUMN: Sidebar Widgets -->
-            <div class="col-lg-4">
-                <div class="sidebar-widgets position-sticky" style="top: 20px;">
-                    
-                    <!-- Search Widget -->
-                    <div class="widget-box bg-white p-4 rounded shadow-sm border mb-4">
-                        <h5 class="fw-bold mb-3 border-bottom pb-2">Search Products</h5>
-                        <form action="products.php" method="GET" class="d-flex">
-                            <input type="text" name="search" class="form-control me-2" placeholder="Search spices, dry fruits..." required style="font-size: 0.9rem;">
-                            <button type="submit" class="btn text-white px-3" style="background: var(--primary-green, #2b5e2c);"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        </form>
-                    </div>
+    <section class="sec art-sec">
+        <div class="wrap art">
 
-                    <!-- Categories Widget -->
-                    <div class="widget-box bg-white p-4 rounded shadow-sm border mb-4">
-                        <h5 class="fw-bold mb-3 border-bottom pb-2">Categories</h5>
-                        <ul class="list-unstyled mb-0 category-list">
-                            <?php
-                            $catQuery = mysqli_query($conn, "SELECT * FROM categories WHERE status = 1");
-                            if ($catQuery && mysqli_num_rows($catQuery) > 0) {
-                                while($catRow = mysqli_fetch_assoc($catQuery)) {
-                            ?>
-                            <li class="mb-2 pb-2 border-bottom">
-                                <a href="category.php?slug=<?= htmlspecialchars($catRow['slug_url']) ?>" class="text-decoration-none d-flex justify-content-between align-items-center text-muted" style="font-size: 0.95rem;">
-                                    <span><i class="fa-solid fa-angle-right me-2" style="font-size: 0.75rem;"></i> <?= htmlspecialchars($catRow['categories']) ?></span>
-                                </a>
-                            </li>
-                            <?php 
-                                }
-                            }
-                            ?>
-                        </ul>
-                    </div>
+            <!-- Left Column: Policy Content -->
+            <article class="prose" style="background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(22px,4vw,42px);">
+                <p>Welcome to <strong><?= e($brand_full) ?></strong>. We respect the privacy of every wholesaler, hotel, caterer, retailer, food processor and export buyer who visits our website or submits a bulk enquiry for dry fruits, fresh fruits, fresh vegetables and spices. This policy explains what information we collect, why we collect it and how we safeguard it.</p>
 
-                   
+                <h2>1. Information We Collect</h2>
+                <p>When you request a quotation, ask for a sample or communicate with our trade desk, we may collect:</p>
+                <ul>
+                    <li><strong>Contact &amp; Business Details:</strong> Contact person name, company or firm name, email address, phone or WhatsApp number and delivery city or port.</li>
+                    <li><strong>Order &amp; Specification Details:</strong> Product names, grades, pack sizes, quantities, rate basis (ex-Delhi, delivered, FOB or CIF) and dispatch instructions.</li>
+                    <li><strong>Trade &amp; Billing Compliance Data:</strong> GSTIN, billing and godown addresses, FSSAI details, IEC code or destination export requirements needed to issue valid invoices and transport documents.</li>
+                    <li><strong>Technical &amp; Usage Data:</strong> Basic browser, device and server log data (such as IP address and pages viewed) used strictly to keep the website secure and functional.</li>
+                </ul>
 
-                    <!-- Request Quote Banner -->
-                    <div class="widget-box rounded shadow-sm text-center p-4 text-white" style="background: linear-gradient(135deg, var(--primary-green, #2b5e2c) 0%, #1a3f1b 100%);">
-                        <div class="icon-wrap mb-3"><i class="fa-solid fa-headset fs-1 text-white opacity-75"></i></div>
-                        <h4 class="fw-bold mb-2 text-white">Bulk Spices & Dry Fruits?</h4>
-                        <p class="small mb-4 opacity-75">Get premium quality export-grade commodities at wholesale prices.</p>
-                        <a href="contact.php" class="btn bg-white w-100 fw-bold shadow-sm mb-3" style="color: var(--primary-green, #2b5e2c);">Request Quote</a>
-                        <a href="tel:+918448211202" class="text-white text-decoration-none small fw-bold"><i class="fa-solid fa-phone me-1"></i> +91-8448211202</a>
-                    </div>
+                <h2>2. How We Use Your Information</h2>
+                <ul>
+                    <li>To prepare written bulk quotations, arrange representative samples and confirm lot availability.</li>
+                    <li>To process confirmed purchase orders, pack goods to specification and issue GST invoices, e-way bills and export paperwork.</li>
+                    <li>To coordinate loading, transport tracking and delivery updates via phone, email or WhatsApp.</li>
+                    <li>To meet statutory, tax, customs and food-safety record-keeping obligations under Indian law.</li>
+                    <li>To prevent spam, fraudulent enquiries and unauthorised access to our website.</li>
+                </ul>
 
+                <h2>3. Payment &amp; Banking Details</h2>
+                <p>Commercial settlements for wholesale orders are handled via agreed bank transfers (NEFT, RTGS, IMPS, LC) or authorised payment instruments. We do not store debit card, credit card or net-banking credentials on our website servers.</p>
+
+                <h2>4. Information Sharing</h2>
+                <p>We do not sell, rent or trade buyer data to third-party marketers. Information is shared only on a need-to-know basis with:</p>
+                <ul>
+                    <li><strong>Transport &amp; Freight Partners:</strong> Fleet operators, rail booking agents, courier services and freight forwarders solely to deliver samples and consignments.</li>
+                    <li><strong>Inspection &amp; Compliance Agencies:</strong> Third-party quality inspectors, phytosanitary agencies or customs brokers where requested for your order.</li>
+                    <li><strong>Legal Authorities:</strong> Tax, GST or regulatory authorities where disclosure is required by applicable law.</li>
+                </ul>
+
+                <h2>5. Cookies</h2>
+                <p>Our website uses essential cookies to keep forms and navigation working smoothly. You can disable cookies in your browser settings at any time without blocking access to our product catalogue.</p>
+
+                <h2>6. Data Security &amp; Retention</h2>
+                <p>Enquiry records and trade documents are stored with restricted administrative access and SSL-encrypted connections. We retain commercial and billing records only for as long as needed to support repeat trade accounts and statutory tax compliance.</p>
+
+                <h2>7. Updates &amp; Contact</h2>
+                <p>We may update this policy periodically to reflect operational or legal changes. For questions about your data or to request deletion of an enquiry record, contact our trade desk:</p>
+
+                <div style="background:var(--alt);border-left:4px solid var(--gold);border-radius:var(--r);padding:18px 20px;margin-top:16px;">
+                    <p style="margin-bottom:6px;"><strong><?= e($brand_full) ?></strong></p>
+                    <?php if ($c_address): ?>
+                        <p style="margin-bottom:6px;"><strong>Address:</strong> <?= e($c_address) ?></p>
+                    <?php endif; ?>
+                    <p style="margin-bottom:6px;"><strong>Phone / WhatsApp:</strong> <a href="tel:+<?= e($tel) ?>"><?= e($disp_phone) ?></a></p>
+                    <p style="margin-bottom:6px;"><strong>Email:</strong> <a href="mailto:<?= e($mail) ?>"><?= e($mail) ?></a></p>
+                    <?php if ($hours): ?>
+                        <p style="margin-bottom:0;"><strong>Hours:</strong> <?= e($hours) ?></p>
+                    <?php endif; ?>
                 </div>
-            </div>
+            </article>
+
+            <!-- Right Column: Sticky Sidebar -->
+            <aside class="asd">
+                <div class="sbox">
+                    <h3>Search Catalogue</h3>
+                    <form action="products" method="GET" class="sbar" role="search">
+                        <input type="search" name="q" placeholder="Search almonds, chilli, onions..." aria-label="Search products" required>
+                        <button type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </form>
+                </div>
+
+                <div class="sbox">
+                    <h3>Policies &amp; Legal</h3>
+                    <ul>
+                        <li><a href="privacy-policy" class="on">Privacy Policy</a></li>
+                        <li><a href="refund-policy">Refund &amp; Cancellation</a></li>
+                        <li><a href="shipping-policy">Shipping &amp; Delivery</a></li>
+                        <li><a href="terms-and-conditions">Terms &amp; Conditions</a></li>
+                    </ul>
+                </div>
+
+                <?php if (!empty($nav_cats)): ?>
+                <div class="sbox">
+                    <h3>Wholesale Aisles</h3>
+                    <ul>
+                        <?php foreach ($nav_cats as $slug => $cd): ?>
+                            <li><a href="category/<?= e($slug) ?>"><?= e($cd['name']) ?> <small>&rarr;</small></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
+
+                <div class="sbox dkc">
+                    <h3>Need today’s bulk rate?</h3>
+                    <p>Share your product, grade, pack size and delivery city. Our trade desk replies with a written quotation.</p>
+                    <a href="contact" class="btn" style="width:100%;margin-bottom:10px;">Request bulk quote</a>
+                    <a href="https://wa.me/<?= e($wa) ?>?text=<?= rawurlencode('Hello ' . $brand_full . ', I would like to discuss a bulk requirement.') ?>" target="_blank" rel="noopener" class="btn green" style="width:100%;margin-bottom:12px;">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp desk
+                    </a>
+                    <p style="margin:0;font-size:.9rem;"><a href="tel:+<?= e($tel) ?>"><i class="fa-solid fa-phone" style="color:var(--gold);margin-right:6px;"></i><?= e($disp_phone) ?></a></p>
+                </div>
+            </aside>
 
         </div>
-    </div>
-</section>
+    </section>
 
-<?php 
-include ('includes/inquiry-form.php');
-include ('includes/footer.php'); 
-?>
+    <section class="sec cbs">
+        <div class="wrap">
+            <div class="cband">
+                <div>
+                    <h2>Have a question about bulk orders?</h2>
+                    <p>Speak directly with our trade desk for specifications, samples, GST billing and dispatch schedules.</p>
+                </div>
+                <div class="cta">
+                    <a href="contact" class="btn d">Contact trade desk</a>
+                    <a href="https://wa.me/<?= e($wa) ?>" target="_blank" rel="noopener" class="btn green"><i class="fa-brands fa-whatsapp"></i> WhatsApp us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<?php include 'includes/footer.php'; ?>

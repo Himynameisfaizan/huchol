@@ -1,100 +1,146 @@
 <?php
-include('config/connect.php');
+$meta_title = 'Refund & Cancellation Policy | Huchol Agro Traders';
+$meta_desc  = 'Read the B2B refund, cancellation, quality claim and replacement policy of Huchol Agro Traders for bulk dry fruits, fresh produce and spices.';
+$meta_key   = 'refund policy, cancellation policy, huchol agro traders, bulk order claims';
 
-$pageTitle = "Refund and Cancellation Policy | Bhagirath Enterprises";
-$meta_description = "Read the refund and cancellation policy of Bhagirath Enterprises for premium spices, dry fruits, seeds, and kernels orders[cite: 23].";
-$meta_key = "refund policy, cancellation policy, bhagirath enterprises, spices export";
+include_once 'includes/header.php';
 
-include 'includes/header.php';
-include 'includes/breadcrumb.php';
+$brand_full = $site_full_name ?? trim(($brand['name'] ?? 'Huchol') . ' ' . ($brand['suffix'] ?? 'Agro Traders'));
+$c_address  = $ct['address'] ?? '';
 ?>
 
-<section class="py-5" style="background-color: #f8f9fa;">
-    <div class="container">
-        <div class="row g-5">
-            
-            <!-- LEFT COLUMN: Content -->
-            <div class="col-lg-8">
-                <div class="bg-white p-4 p-md-5 rounded shadow-sm border">
-                    <h1 class="mb-4" style="color: #2b5e2c; font-weight: 700;">Refund and Cancellation Policy</h1>
-                    <p class="text-muted mb-5"><strong>Last Updated:</strong> <?= date('F d, Y'); ?></p>
+<main id="main">
 
-                    <p>At <strong>Bhagirath Enterprises</strong>, we ensure the highest quality of our agricultural commodities, including premium spices, dry fruits, seeds, and kernels[cite: 23]. Because we deal in consumable food products, our refund and cancellation policies are structured to comply with strict food safety, hygiene, and trade standards[cite: 23].</p>
+    <section class="pghead nb">
+        <div class="wrap">
+            <ol class="crumbs">
+                <li><a href="./">Home</a></li>
+                <li>Refund &amp; Cancellation Policy</li>
+            </ol>
+            <h1>Refund &amp; Cancellation Policy</h1>
+            <p class="lead">Clear terms for bulk order cancellations, lot verification, transit damage claims and credit settlements.</p>
+            <div class="pills">
+                <span>Last updated: <?= e(date('d M Y')) ?></span>
+                <span>Wholesale &amp; Export Orders</span>
+            </div>
+        </div>
+    </section>
 
-                    <h3 class="mt-5 mb-3" style="color: #e65c00; font-size: 1.3rem;">Cancellation Policy</h3>
-                    
-                    <h4 class="mt-4" style="font-size: 1.1rem; color: #2b5e2c; font-weight: 600;">1. Order Cancellation Before Dispatch</h4>
-                    <p>You may cancel your order within <strong>24 hours</strong> of placing it, provided it has not yet been processed, packed, or dispatched from our facility[cite: 23]. A full refund will be processed immediately upon valid request sent to our official support email[cite: 23].</p>
+    <section class="sec art-sec">
+        <div class="wrap art">
 
-                    <h4 class="mt-4" style="font-size: 1.1rem; color: #2b5e2c; font-weight: 600;">2. Cancellation After Dispatch</h4>
-                    <p>Due to the perishable and consumable nature of spices and dry fruits, orders <strong>cannot be cancelled</strong> once they have been handed over to our logistics partners or shipped[cite: 23].</p>
-                    
-                    <h4 class="mt-4" style="font-size: 1.1rem; color: #2b5e2c; font-weight: 600;">3. Bulk & Wholesale Orders</h4>
-                    <p>For custom-packaged or bulk container export orders of seeds and kernels, cancellations are not permitted once sourcing and processing have commenced[cite: 23]. Advance payments for bulk wholesale orders remain strictly non-refundable[cite: 23].</p>
+            <!-- Left Column: Policy Content -->
+            <article class="prose" style="background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:clamp(22px,4vw,42px);">
+                <p>At <strong><?= e($brand_full) ?></strong>, every consignment of dry fruits, fresh fruits, fresh vegetables and spices is sourced against agreed specifications and checked prior to loading. Because agricultural commodities are perishable, food-grade and traded against daily mandi rates, the following cancellation, claim and refund terms apply to all wholesale and export orders.</p>
 
-                    <hr class="my-5">
+                <h2>1. Order Cancellation Policy</h2>
+                <h3>Before Procurement or Packing</h3>
+                <p>Standard wholesale orders may be cancelled in writing before lot procurement, grading or packing begins. Any advance received will be adjusted against future orders or refunded after deducting actual bank or administrative charges, if applicable.</p>
 
-                    <h3 class="mb-3" style="color: #e65c00; font-size: 1.3rem;">Return and Refund Policy</h3>
-                    
-                    <h4 class="mt-4" style="font-size: 1.1rem; color: #2b5e2c; font-weight: 600;">1. Eligibility for Returns & Refunds</h4>
-                    <p>We <strong>do not accept general returns</strong> (such as change of mind) due to strict food safety and hygiene regulations[cite: 23]. However, replacements or refunds are applicable if[cite: 23]:</p>
+                <h3>After Packing or Dispatch</h3>
+                <p>Once goods are sorted, packed, loaded or handed over to a transporter or freight forwarder, the order <strong>cannot be cancelled</strong>.</p>
+
+                <h3>Fresh Produce, Custom Packing &amp; Export Orders</h3>
+                <ul>
+                    <li><strong>Fresh Fruits &amp; Vegetables:</strong> Daily mandi procurement begins immediately after cut-off; cancellations are not accepted once procurement has started.</li>
+                    <li><strong>Private Label &amp; Custom Packing:</strong> Orders involving custom pouch printing, private labels or non-standard pack weights cannot be cancelled once production or packing starts.</li>
+                    <li><strong>Export Consignments:</strong> Container or air-freight orders are non-cancellable once sourcing, phytosanitary inspection or customs documentation has commenced.</li>
+                </ul>
+
+                <h2>2. Returns &amp; Quality Claims</h2>
+                <p>Under food-safety and hygiene norms, we do not accept general returns (such as change of requirement or local market rate fluctuations) on edible agro commodities. However, we stand behind the specification agreed on your purchase order. A replacement, credit note or partial/full refund is considered strictly if:</p>
+                <ul>
+                    <li>The delivered lot materially differs from the approved sample or written grade specification.</li>
+                    <li>An incorrect item or verified short-weight consignment was dispatched.</li>
+                    <li>Packaging was severely damaged during transit under a delivered-rate arrangement where transit risk rests with us.</li>
+                </ul>
+
+                <h2>3. Claim Reporting Window</h2>
+                <p>Because freshness and storage conditions change rapidly after unloading, claims must be reported in writing to our trade desk with supporting evidence (lot photos, unloading video, weighment slip and invoice number) within:</p>
+                <ul>
+                    <li><strong>Fresh Fruits &amp; Vegetables:</strong> Within <strong>24 hours</strong> of delivery (or at the time of gate inspection for hotel/catering drops).</li>
+                    <li><strong>Dry Fruits, Nuts &amp; Spices:</strong> Within <strong>48 hours</strong> of delivery, with packaging intact and stored in cool, dry conditions.</li>
+                </ul>
+
+                <h2>4. Verification &amp; Refund Timeline</h2>
+                <p>Once a valid claim is verified by our quality team, we will issue a mutually agreed resolution—either a replacement lot, a GST credit note adjusted against your ledger, or a bank refund. Approved bank refunds are processed back to the buyer’s verified business account within <strong>5 to 7 business days</strong>.</p>
+
+                <h2>5. Trade Desk Support</h2>
+                <p>To submit a cancellation request or report a consignment issue, please reach our desk directly:</p>
+
+                <div style="background:var(--alt);border-left:4px solid var(--gold);border-radius:var(--r);padding:18px 20px;margin-top:16px;">
+                    <p style="margin-bottom:6px;"><strong><?= e($brand_full) ?></strong></p>
+                    <?php if ($c_address): ?>
+                        <p style="margin-bottom:6px;"><strong>Address:</strong> <?= e($c_address) ?></p>
+                    <?php endif; ?>
+                    <p style="margin-bottom:6px;"><strong>Phone / WhatsApp:</strong> <a href="tel:+<?= e($tel) ?>"><?= e($disp_phone) ?></a></p>
+                    <p style="margin-bottom:6px;"><strong>Email:</strong> <a href="mailto:<?= e($mail) ?>"><?= e($mail) ?></a></p>
+                    <?php if ($hours): ?>
+                        <p style="margin-bottom:0;"><strong>Hours:</strong> <?= e($hours) ?></p>
+                    <?php endif; ?>
+                </div>
+            </article>
+
+            <!-- Right Column: Sticky Sidebar -->
+            <aside class="asd">
+                <div class="sbox">
+                    <h3>Search Catalogue</h3>
+                    <form action="products" method="GET" class="sbar" role="search">
+                        <input type="search" name="q" placeholder="Search almonds, chilli, onions..." aria-label="Search products" required>
+                        <button type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </form>
+                </div>
+
+                <div class="sbox">
+                    <h3>Policies &amp; Legal</h3>
                     <ul>
-                        <li>The product packaging was severely damaged or compromised during transit[cite: 23].</li>
-                        <li>An incorrect product or quantity was delivered[cite: 23].</li>
+                        <li><a href="privacy-policy">Privacy Policy</a></li>
+                        <li><a href="refund-policy" class="on">Refund &amp; Cancellation</a></li>
+                        <li><a href="shipping-policy">Shipping &amp; Delivery</a></li>
+                        <li><a href="terms-and-conditions">Terms &amp; Conditions</a></li>
                     </ul>
-                    <p><em>Note: You must notify us within <strong>48 hours of delivery</strong> with unboxing video or photographic proof[cite: 23].</em></p>
-
-                    <h4 class="mt-4" style="font-size: 1.1rem; color: #2b5e2c; font-weight: 600;">2. Refund Timeline</h4>
-                    <p>Approved refunds are credited back to the original payment method within <strong>5 to 7 business days</strong>[cite: 23].</p>
                 </div>
-            </div>
 
-            <!-- RIGHT COLUMN: Sidebar Widgets -->
-            <div class="col-lg-4">
-                <div class="sidebar-widgets position-sticky" style="top: 20px;">
-                    <div class="widget-box bg-white p-4 rounded shadow-sm border mb-4">
-                        <h5 class="fw-bold mb-3 border-bottom pb-2">Search Products</h5>
-                        <form action="products.php" method="GET" class="d-flex">
-                            <input type="text" name="search" class="form-control me-2" placeholder="Search..." required style="font-size: 0.9rem;">
-                            <button type="submit" class="btn text-white px-3" style="background: var(--primary-green, #2b5e2c);"><i class="fa-solid fa-magnifying-glass"></i></button>
-                        </form>
-                    </div>
-
-                    <div class="widget-box bg-white p-4 rounded shadow-sm border mb-4">
-                        <h5 class="fw-bold mb-3 border-bottom pb-2">Categories</h5>
-                        <ul class="list-unstyled mb-0 category-list">
-                            <?php
-                            $catQuery = mysqli_query($conn, "SELECT * FROM categories WHERE status = 1");
-                            if ($catQuery && mysqli_num_rows($catQuery) > 0) {
-                                while($catRow = mysqli_fetch_assoc($catQuery)) {
-                            ?>
-                            <li class="mb-2 pb-2 border-bottom">
-                                <a href="category.php?slug=<?= htmlspecialchars($catRow['slug_url']) ?>" class="text-decoration-none d-flex justify-content-between align-items-center text-muted" style="font-size: 0.95rem;">
-                                    <span><i class="fa-solid fa-angle-right me-2" style="font-size: 0.75rem;"></i> <?= htmlspecialchars($catRow['categories']) ?></span>
-                                </a>
-                            </li>
-                            <?php 
-                                }
-                            }
-                            ?>
-                        </ul>
-                    </div>
-
-                    <div class="widget-box rounded shadow-sm text-center p-4 text-white" style="background: linear-gradient(135deg, var(--primary-green, #2b5e2c) 0%, #1a3f1b 100%);">
-                        <div class="icon-wrap mb-3"><i class="fa-solid fa-headset fs-1 text-white opacity-75"></i></div>
-                        <h4 class="fw-bold mb-2 text-white">Need Help?</h4>
-                        <p class="small mb-4 opacity-75">Contact our support team for any order assistance.</p>
-                        <a href="contact.php" class="btn bg-white w-100 fw-bold shadow-sm mb-3" style="color: var(--primary-green, #2b5e2c);">Contact Us</a>
-                        <a href="tel:+918448211202" class="text-white text-decoration-none small fw-bold"><i class="fa-solid fa-phone me-1"></i> +91-8448211202</a>
-                    </div>
+                <?php if (!empty($nav_cats)): ?>
+                <div class="sbox">
+                    <h3>Wholesale Aisles</h3>
+                    <ul>
+                        <?php foreach ($nav_cats as $slug => $cd): ?>
+                            <li><a href="category/<?= e($slug) ?>"><?= e($cd['name']) ?> <small>&rarr;</small></a></li>
+                        <?php endforeach; ?>
+                    </ul>
                 </div>
-            </div>
+                <?php endif; ?>
+
+                <div class="sbox dkc">
+                    <h3>Need help with an order?</h3>
+                    <p>Share your invoice or PO number with our trade desk for quick assistance on dispatch or claims.</p>
+                    <a href="contact" class="btn" style="width:100%;margin-bottom:10px;">Contact trade desk</a>
+                    <a href="https://wa.me/<?= e($wa) ?>?text=<?= rawurlencode('Hello ' . $brand_full . ', I need assistance regarding an order.') ?>" target="_blank" rel="noopener" class="btn green" style="width:100%;margin-bottom:12px;">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp desk
+                    </a>
+                    <p style="margin:0;font-size:.9rem;"><a href="tel:+<?= e($tel) ?>"><i class="fa-solid fa-phone" style="color:var(--gold);margin-right:6px;"></i><?= e($disp_phone) ?></a></p>
+                </div>
+            </aside>
 
         </div>
-    </div>
-</section>
+    </section>
 
-<?php 
-include ('includes/inquiry-form.php');
-include 'includes/footer.php'; 
-?>
+    <section class="sec cbs">
+        <div class="wrap">
+            <div class="cband">
+                <div>
+                    <h2>Want a sample before placing a bulk order?</h2>
+                    <p>Verify grade, size and moisture upfront with representative samples sent directly from our desk.</p>
+                </div>
+                <div class="cta">
+                    <a href="contact" class="btn d">Request sample &amp; rate</a>
+                    <a href="https://wa.me/<?= e($wa) ?>" target="_blank" rel="noopener" class="btn green"><i class="fa-brands fa-whatsapp"></i> WhatsApp us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<?php include 'includes/footer.php'; ?>
