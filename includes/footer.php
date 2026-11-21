@@ -17,9 +17,11 @@
             <ul>
                 <li><a href="about">About us</a></li>
                 <li><a href="products">All products</a></li>
-                <li><a href="service">Services</a></li>
                 <li><a href="blog">Insights</a></li>
                 <li><a href="contact">Contact</a></li>
+                <li><a href="privacy-policy">Privacy Policy</a></li>
+                <li><a href="terms-and-conditions">Terms & Condition</a></li>
+                <li><a href="shipping-and-delivery-policy">Shipping & Return</a></li>
             </ul>
         </div>
         <div>
